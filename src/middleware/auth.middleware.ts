@@ -36,12 +36,15 @@ export const decodeToken = async ({
       : process.env.REFRESH_SIGNATURE as string
   })
 
-  const patient = await patientModel.findById({ id: payload._id })
+  const patient = await patientModel.findById({ id: payload._id }) ;
+  
 
   if (!patient) {
     throw new InvalidTokenException()
   }
-
+  if (patient.deletedAt) {
+    throw new InvalidTokenException()
+  }
   if (!patient.isRegistrationComplete) {
     throw new InvalidTokenException()
   }
@@ -50,6 +53,7 @@ export const decodeToken = async ({
 }
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
+
   const data = await decodeToken({
     authorization: req.headers.authorization as string,
     tokenTypes: TokenTypesEnum.ACCESS

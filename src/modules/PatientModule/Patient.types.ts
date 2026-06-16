@@ -8,11 +8,11 @@ export interface IPatient {
     
     email?: string,
     phone?: string,
-    
+    deletedAt?: Date | null,
     isRegistrationComplete: boolean,
     isEmailVerified: boolean,
     isPhoneVerified: boolean,
-    
+    gender?: 'male' | 'female',
     profileImage?: string,
     coverImage?: string[],
     folderId?: string, 

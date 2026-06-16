@@ -1,7 +1,7 @@
 import Router  from "express";
 import { AuthServices } from "./patient.services";
 import validation from "../../middleware/validation.middleware";
-import {preRegisterSchema,completeRegistrationSchema, addAddressSchema, loginSchema, resendOtpSchema, SearchUserSchema, verifyPhoneSchema } from "./patient.validation";
+import {preRegisterSchema,completeRegistrationSchema, addAddressSchema, loginSchema, resendOtpSchema, SearchUserSchema, verifyPhoneSchema, updatePatientSchema } from "./patient.validation";
 import { auth } from "../../middleware/auth.middleware";
 import { uploadFiles } from "../../utilis/multer/multer";
 
@@ -25,5 +25,7 @@ router.get('/me',auth,authServices.getMe) ;
 router.post('/refreshToken',authServices.refreshToken);
 router.patch('/uploadProfrilePic',auth,uploadFiles('uploads/patient/profiles').single('image'),authServices.uploadProfilePic);
 router.patch('/addAddressDetails',auth,validation(addAddressSchema),authServices.addAddressDetails);
+router.patch('/updateProfile',auth,validation(updatePatientSchema),authServices.updateProfile);
+router.delete('/deleteProfile',auth,authServices.deleteProfile);
 
 export default router ;

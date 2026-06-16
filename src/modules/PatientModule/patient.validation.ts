@@ -23,7 +23,8 @@ export const completeRegistrationSchema = z.object({
   confirmPassword: z.string({ error: "Please confirm your password" }),
   dateOfBirth: z.coerce.date({ error: "Date of birth is required" }),
   phone: z.string().optional(),
-  email: z.string().email().optional()
+  email: z.email().optional() ,
+  gender :z.enum(['male', 'female']).optional()
 }).superRefine((data, ctx) => {
   if (data.confirmPassword !== data.password) {
     ctx.addIssue({
@@ -74,3 +75,24 @@ export const verifyPhoneSchema = z.object({
   otp: z.string({ error: "OTP is required" }).length(6, { error: "OTP must be exactly 6 characters long" }),
   phone: z.string({ error: "Phone must be a valid string" }),
 })
+
+
+export const updatePatientSchema = z.object({
+  firstName: z.string().min(1).optional(),
+  lastName: z.string().min(1).optional(),
+  gender: z.enum(["male", "female"]).optional(),
+  dateOfBirth: z.coerce.date().optional(),
+  
+  address: z.object({
+    addressId: z.string({ error: "addressId is required to update a specific address" }),
+    name: z.string().optional(),
+    locationLink: z.string().optional(),
+    flatNumber: z.string().optional(),
+    floor: z.string().optional(),
+    buildingNumber: z.string().optional(),
+    street: z.string().optional(),
+    landmark: z.string().optional(),
+    city: z.string().optional(),
+    government: z.string().optional()
+  }).optional()
+});

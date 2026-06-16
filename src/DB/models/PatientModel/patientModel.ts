@@ -48,6 +48,7 @@ let patientSchema = new Schema<IPatient>({
         trim:true,
         sparse:true
     },
+    gender:{ type: String, enum: ['male', 'female'] },
     password: {
         type: String,
     },
@@ -69,6 +70,7 @@ let patientSchema = new Schema<IPatient>({
     },
     isEmailVerified: { type: Boolean, default: false },
     isPhoneVerified: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
     changedCredintialsAt: Date,
     verifyingOtpDetails: {
         otp: String,

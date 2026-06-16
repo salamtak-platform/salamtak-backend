@@ -1,7 +1,7 @@
 import { template } from '../../utilis/email/generateHTML';
 import { NextFunction, Request, Response } from "express";
 import { loginDto, resendOtpDto, resetForgottenPasswordDto, searchUserDto, verifyPhoneDto } from "./patient.DTO";
-import { ApplicationError, InvalidOtpException, NotFoundException, NotVerfiedException } from "../../utilis/errors/types";
+import { ApplicationError, InvalidOtpException, InvalidTokenException, NotFoundException, NotVerfiedException } from "../../utilis/errors/types";
 import { patientRepo } from "../../DB/repos/patientRebo";
 import { hash } from "../../utilis/security/hash";
 import { successHandler } from "../../utilis/successHandler";
@@ -15,7 +15,7 @@ import { sendSms } from '../../utilis/sms/sendSms';
 import JsonWebToken from 'jsonwebtoken'
 export class AuthServices {
     private patientModel = new patientRepo
-  
+
     preRegister = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
         try {
             const { identity } = req.body;
@@ -124,7 +124,7 @@ export class AuthServices {
     };
     completeRegistration = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
         try {
-            const { registrationToken, firstName, lastName, phone, email, password, dateOfBirth } = req.body;
+            const { registrationToken, firstName, lastName, phone, gender, email, password, dateOfBirth } = req.body;
 
             let decoded: any;
             try {
@@ -136,10 +136,10 @@ export class AuthServices {
             if (decoded.purpose !== 'registration_completion') {
                 throw new ApplicationError('Unauthorized token payload purpose.', 403);
             }
-            
-            const patient = await this.patientModel.findById({id:decoded.patientId});
-    
-            
+
+            const patient = await this.patientModel.findById({ id: decoded.patientId });
+
+
             if (!patient || patient.isRegistrationComplete) {
                 throw new ApplicationError('Profile cannot be found or was already completed', 400);
             }
@@ -150,6 +150,7 @@ export class AuthServices {
                 firstName,
                 lastName,
                 dateOfBirth,
+                gender,
                 password: hashedPassword,
                 isRegistrationComplete: true
             };
@@ -262,6 +263,9 @@ export class AuthServices {
         if (!patient) {
             throw new ApplicationError('invalid cerdentials', 400);
         }
+        if (patient.deletedAt) {
+            throw new InvalidTokenException()
+          }
         if (!patient.isRegistrationComplete) {
             throw new ApplicationError('Your registration profile is incomplete', 400);
         }
@@ -289,11 +293,11 @@ export class AuthServices {
         })
 
         return successHandler({ res, data: { accessToken, refreshToken } })
-    }
+    };
     getMe = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
         let patient: HIPatient = res.locals.patient
         return successHandler({ res, data: patient })
-    }
+    };
     refreshToken = async (req: Request, res: Response): Promise<Response> => {
         const {
             authorization
@@ -315,13 +319,16 @@ export class AuthServices {
                 accessToken
             }
         })
-    }
+    };
     forgetPassword = async (req: Request, res: Response) => {
         const { email } = req.body
         const patient = await this.patientModel.findByEmail({ email })
         if (!patient) {
             throw new NotFoundException('email not found')
         }
+        if (patient.deletedAt) {
+            throw new InvalidTokenException()
+          }
         if (!patient.isRegistrationComplete) {
             throw new ApplicationError('This profile registration is incomplete', 400);
         }
@@ -346,7 +353,7 @@ export class AuthServices {
         })
 
         return successHandler({ res, message: "check your email" })
-    }
+    };
     resetForgottenPassword = async (req: Request, res: Response) => {
         const {
             email,
@@ -381,7 +388,7 @@ export class AuthServices {
             }
         })
         return successHandler({ res })
-    }
+    };
     uploadProfilePic = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
         const patientId = res.locals.patient._id;
 
@@ -426,7 +433,7 @@ export class AuthServices {
         );
 
         return successHandler({ res, data: patientupdated });
-    }
+    };
     searchLogin = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
         try {
             let { searchMethode, content }: searchUserDto = req.body;
@@ -445,6 +452,9 @@ export class AuthServices {
                     message: "User not found, please register"
                 });
             }
+            if (patientExist.deletedAt) {
+                throw new InvalidTokenException()
+              }
             if ((searchMethode == 'email' && !patientExist.isEmailVerified) || (searchMethode == 'phone' && !patientExist.isPhoneVerified)) {
                 return successHandler({
                     res,
@@ -485,6 +495,9 @@ export class AuthServices {
 
         let patient = await this.patientModel.findOne({ filter: { phone } });
         if (!patient) throw new NotFoundException('Account not found');
+        if (patient.deletedAt) {
+            throw new InvalidTokenException()
+        }
         if (!patient.phoneOtp?.otp) throw new ApplicationError('Please request an OTP first', 400);
         if (!patient.isRegistrationComplete) {
             throw new ApplicationError('Your profile setup is incomplete', 400);
@@ -523,7 +536,9 @@ export class AuthServices {
             if (!patient) {
                 throw new NotFoundException('Account not found');
             }
-
+            if (patient.deletedAt) {
+                throw new InvalidTokenException()
+            }
             if (!patient.isRegistrationComplete) {
                 throw new ApplicationError('Your profile setup is incomplete', 400);
             }
@@ -562,6 +577,64 @@ export class AuthServices {
         } catch (error) {
             next(error);
         }
+    };
+    updateProfile = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
+        let updates = req.body;
+        let patient: HIPatient = res.locals.patient;
+
+        let updatePayload: Record<string, any> = {};
+        let fieldsToUpdate = ['firstName', 'lastName', 'dateOfBirth', 'gender'];
+
+        fieldsToUpdate.forEach(field => {
+            if (updates[field] !== undefined) {
+                updatePayload[field] = updates[field];
+            }
+        })
+        let targetAddressId: string | undefined;
+        if (updates.addresses) {
+            let { address_Id, ...addressUpdates } = updates.addresses;
+            if (!address_Id) {
+                throw new ApplicationError('Address ID is required for updating an address', 400);
+            }
+            targetAddressId = address_Id;
+            Object.keys(addressUpdates).forEach(key => {
+                if (addressUpdates[key] !== undefined) {
+                    updatePayload[`addresses.$.${key}`] = addressUpdates[key];
+                }
+            })
+        }
+        if (Object.keys(updatePayload).length === 0) {
+            throw new ApplicationError("No valid update data fields provided.", 400);
+        }
+
+        let queryFilter: Record<string, any> = { _id: patient._id };
+        if (targetAddressId) {
+            queryFilter['addresses._id'] = targetAddressId;
+        }
+        console.log(queryFilter);
+        console.log(updatePayload);
+
+
+        await this.patientModel.updateOne(
+            {
+                filter: queryFilter,
+                update: { $set: updatePayload }
+            }
+        );
+
+
+        return successHandler({ res, message: "Profile updated successfully" });
+    };
+    deleteProfile = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
+        let patient: HIPatient = res.locals.patient;
+        await this.patientModel.updateOne({
+            filter: { _id: patient._id },
+            update: {
+                $set: { deletedAt: new Date() }
+            }
+        });
+
+        return successHandler({ res, message: "Profile deleted successfully" })
     };
 
 }
