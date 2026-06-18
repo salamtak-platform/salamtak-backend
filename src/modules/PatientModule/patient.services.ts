@@ -19,19 +19,22 @@ export class AuthServices {
     preRegister = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
         try {
             const { identity } = req.body;
-            const isEmail = identity.includes('@');
+            const isEmail = identity.includes('@'); 
+            
             const duplicateFilter = isEmail ? { email: identity } : { phone: identity };
 
             const existingUser = await this.patientModel.findOne({
                 filter: duplicateFilter
             });
-
+            console.log(existingUser)
             if (existingUser) {
                 if (existingUser.isRegistrationComplete) {
                     throw new ApplicationError('This account is already registered. Please log in.', 400);
+                }else if(existingUser.isRegistrationComplete==false ){
+                    throw new ApplicationError('This account is found but not verified or not completed.', 400);
                 }
                 await this.patientModel.deleteOne({
-                    filter: { _id: existingUser._id }
+                    filter: { _id: existingUser._id.toString() }
                 });
             }
 
@@ -49,9 +52,11 @@ export class AuthServices {
                 }
             };
 
-            if (isEmail) docPayload.email = identity;
-            else docPayload.phone = identity;
-
+            if (isEmail) {
+            docPayload.email = identity;
+        } else {
+            docPayload.phone = identity;
+        }
 
             await this.patientModel.create({ doc: docPayload });
 

@@ -3,7 +3,7 @@ import { Model, ProjectionType, QueryFilter, QueryOptions, Types } from "mongoos
 
 
 export abstract class DBRebo<T> {
-    //                                      
+ 
     constructor(protected model: Model<T>) { }
 
     find = async (
@@ -84,13 +84,15 @@ export abstract class DBRebo<T> {
     }
     updateOne = async ({
         filter,
-        update
+        update,
+        options
     }: {
         filter: Record<string, any>;
         update: Record<string, any>;
+        options?: any;
     }): Promise<any> => {
   
-        return await this.model.updateOne(filter, update);
+        return await this.model.updateOne(filter, update, options);
     };
 
 
