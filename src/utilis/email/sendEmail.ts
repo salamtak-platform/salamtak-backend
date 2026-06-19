@@ -15,7 +15,7 @@ export const SendEmail = ({ to, subject, html }: {
         auth: {
             user:process.env.USER,
             pass: process.env.PASSWORD
-        }
+        },family:4
     }
     const transporter = nodemailer.createTransport(transportOptions)
     const main = async () => {
