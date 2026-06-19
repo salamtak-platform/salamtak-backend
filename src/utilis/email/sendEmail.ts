@@ -25,6 +25,7 @@ export const SendEmail = ({ to, subject, html }: {
             subject,
             html
         })
+        console.log( info);
     }
     main().catch((err) => {
         console.log({ err });
