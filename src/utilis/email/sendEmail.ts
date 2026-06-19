@@ -16,15 +16,18 @@ export const SendEmail = ({ to, subject, html }: {
             user:process.env.USER,
             pass: process.env.PASSWORD
         },family:4
+        
     }
     const transporter = nodemailer.createTransport(transportOptions)
     const main = async () => {
+        console.log("1 - before sending");
         const info = await transporter.sendMail({
             from: `Salamtk App<${process.env.USER}>`,
             to,
             subject,
             html
         })
+        console.log("2 - after sending");
         console.log( info);
     }
     main().catch((err) => {
