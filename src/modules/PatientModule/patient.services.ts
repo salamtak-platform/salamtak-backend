@@ -233,11 +233,13 @@ export class AuthServices {
                     name: "Patient",
                     subject: `Verify your email`
                 });
-                SendEmail({
+                 let emailSent =  SendEmail({
                     to: patient.email,
                     subject: `Verify your email`,
                     html
                 });
+                console.log(emailSent);
+                
             } else {
                 await sendSms({
                     to: patient.phone as string,
