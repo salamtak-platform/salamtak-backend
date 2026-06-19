@@ -63,7 +63,8 @@ export class AuthServices {
 
             if (isEmail) {
                 const html = template({ otp, name: "Patient", subject: "Verify Registration" });
-                 SendEmail({ to: identity, subject: "Verify your registration", html });
+               let result=await  SendEmail({ to: identity, subject: "Verify your registration", html });
+               console.log(result);
             } else {
                 await sendSms({
                     to: identity,
@@ -233,13 +234,11 @@ export class AuthServices {
                     name: "Patient",
                     subject: `Verify your email`
                 });
-                 let emailSent = await SendEmail({
+                SendEmail({
                     to: patient.email,
                     subject: `Verify your email`,
                     html
                 });
-                console.log(emailSent);
-                
             } else {
                 await sendSms({
                     to: patient.phone as string,
