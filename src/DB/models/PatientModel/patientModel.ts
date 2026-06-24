@@ -62,7 +62,6 @@ let patientSchema = new Schema<IPatient>({
         sparse:true
     },
     profileImage: String,
-    coverImage: [String],
     folderId: String,
     isRegistrationComplete: {
         type: Boolean,
@@ -70,7 +69,6 @@ let patientSchema = new Schema<IPatient>({
     },
     isEmailVerified: { type: Boolean, default: false },
     isPhoneVerified: { type: Boolean, default: false },
-    deletedAt: { type: Date, default: null },
     changedCredintialsAt: Date,
     verifyingOtpDetails: {
         otp: String,

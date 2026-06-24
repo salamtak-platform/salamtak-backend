@@ -11,7 +11,7 @@ export class HealthLogServices {
     private healthLogModel = new HealthLogRepo
     createHealthLog = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
 
-        const patient = res.locals.patient;
+        const patient = res.locals.user;
         const { generalInfo } = req.body;
 
         const existingLog = await this.healthLogModel.findOne({
@@ -43,7 +43,7 @@ export class HealthLogServices {
     };
     updateHealthLog = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
 
-        const patient = res.locals.patient;
+        const patient = res.locals.user;
         const updates = req.body;
         const log = await this.healthLogModel.findOne({
             filter: { patientId: patient._id }
@@ -138,7 +138,7 @@ export class HealthLogServices {
 
     }
     getHealthLog = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
-        let patientId = res.locals.patient._id;
+        let patientId = res.locals.user._id;
         const log = await this.healthLogModel.findOne({
             filter: { patientId: patientId }
         });
@@ -156,7 +156,7 @@ export class HealthLogServices {
     }
     deleteArrayItem = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
 
-        const patient = res.locals.patient;
+        const patient = res.locals.user;
         const { name, itemId } = req.body;
 
 

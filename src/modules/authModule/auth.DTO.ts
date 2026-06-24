@@ -1,5 +1,5 @@
 import z from "zod";
-import { addAddressSchema, completeRegistrationSchema, loginSchema, resendOtpSchema, resetForgettenPasswordSchema, SearchUserSchema, verifyPhoneSchema } from "./patient.validation";
+import { addAddressSchema, completeRegistrationSchema, loginSchema, resendOtpSchema, resetForgettenPasswordSchema, SearchUserSchema, verifyPhoneSchema } from "./auth.validation";
 
 
 

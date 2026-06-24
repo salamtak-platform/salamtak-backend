@@ -3,9 +3,10 @@ import { patientRepo } from "../DB/repos/patientRebo"
 import { InvalidTokenException } from "../utilis/errors/types"
 import { verifyToken } from "../utilis/security/token"
 import { NextFunction,Response,Request } from "express"
+import { providerRebo } from "../DB/repos/providerRebo"
 
 
-const patientModel = new patientRepo()
+
 
 export enum TokenTypesEnum {
     ACCESS="access",
@@ -36,20 +37,30 @@ export const decodeToken = async ({
       : process.env.REFRESH_SIGNATURE as string
   })
 
-  const patient = await patientModel.findById({ id: payload._id }) ;
+ 
+  let userModel: any;
+  console.log(payload.role)
+  if (payload.role === 'patient') {
+    userModel = new patientRepo();
+  }  else if (payload.role === 'doctor') {
+    userModel = new providerRebo();
+   } else {
+    throw new InvalidTokenException()
+  }
+  const user = await userModel.findById({ id: payload._id }) ;
   
 
-  if (!patient) {
+  if (!user) {
     throw new InvalidTokenException()
   }
-  if (patient.deletedAt) {
+  if (user.deletedAt) {
     throw new InvalidTokenException()
   }
-  if (!patient.isRegistrationComplete) {
+  if (!user.isRegistrationComplete) {
     throw new InvalidTokenException()
   }
 
-  return patient
+  return user
 }
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
@@ -58,6 +69,6 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     authorization: req.headers.authorization as string,
     tokenTypes: TokenTypesEnum.ACCESS
   })
-  res.locals.patient = data
+  res.locals.user = data
   return next()
 }

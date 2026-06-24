@@ -77,22 +77,9 @@ export const verifyPhoneSchema = z.object({
 })
 
 
-export const updatePatientSchema = z.object({
+export const updateUserSchema = z.object({
   firstName: z.string().min(1).optional(),
   lastName: z.string().min(1).optional(),
   gender: z.enum(["male", "female"]).optional(),
   dateOfBirth: z.coerce.date().optional(),
-  
-  address: z.object({
-    addressId: z.string({ error: "addressId is required to update a specific address" }),
-    name: z.string().optional(),
-    locationLink: z.string().optional(),
-    flatNumber: z.string().optional(),
-    floor: z.string().optional(),
-    buildingNumber: z.string().optional(),
-    street: z.string().optional(),
-    landmark: z.string().optional(),
-    city: z.string().optional(),
-    government: z.string().optional()
-  }).optional()
 });

@@ -1,10 +1,12 @@
 import Router  from "express";
-import authRouter from './PatientModule/patient.controller' ;
+import patientAuthRouter from './PatientModule/patient.controller' ;
 import healthLogRouter from './HealthLogModule/HealthLog.controller' ;
+import providerRouter from './ProviderModule/provider.controller' ;
 const router=Router() 
 
-router.use('/auth',authRouter) ;
+router.use('/patient',patientAuthRouter) ;
 router.use('/healthLog',healthLogRouter) ;
+router.use('/provider',providerRouter) ;
 
 
 export default router ;

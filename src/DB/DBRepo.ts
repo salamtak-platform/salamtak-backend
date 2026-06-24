@@ -65,7 +65,7 @@ export abstract class DBRebo<T> {
     findByIdAndUpdate = async (
         id: string,
         updateData: Partial<T>,
-        options: QueryOptions = { new: true }
+        options: QueryOptions = { returnDocument: 'after' }
     ) => {
         const doc = await this.model.findByIdAndUpdate(id, updateData, options);
         return doc;

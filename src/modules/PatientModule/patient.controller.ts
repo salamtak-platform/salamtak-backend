@@ -1,12 +1,15 @@
 import Router  from "express";
-import { AuthServices } from "./patient.services";
+import { AuthServices } from "../authModule/auth.services";
 import validation from "../../middleware/validation.middleware";
-import {preRegisterSchema,completeRegistrationSchema, addAddressSchema, loginSchema, resendOtpSchema, SearchUserSchema, verifyPhoneSchema, updatePatientSchema } from "./patient.validation";
+import {preRegisterSchema,completeRegistrationSchema, addAddressSchema, loginSchema, resendOtpSchema, SearchUserSchema, verifyPhoneSchema, updateUserSchema } from "../authModule/auth.validation";
 import { auth } from "../../middleware/auth.middleware";
 import { uploadFiles } from "../../utilis/multer/multer";
+import { patientRepo } from "../../DB/repos/patientRebo";
+import { PatientService } from "./patient.services";
 
 const router=Router()  
-const authServices = new AuthServices() 
+const authServices = new AuthServices(new patientRepo(), 'patient');
+const patientService = new PatientService()
 // register yastaaaaaaaaaaaaaaaaaa
 router.post('/preRegister', validation(preRegisterSchema), authServices.preRegister);
 router.post('/verifyPreRegistration', authServices.verifyPreRegistration);
@@ -24,8 +27,10 @@ router.patch('/resetForgottenPassword',authServices.resetForgottenPassword);
 router.get('/me',auth,authServices.getMe) ;
 router.post('/refreshToken',authServices.refreshToken);
 router.patch('/uploadProfrilePic',auth,uploadFiles('uploads/patient/profiles').single('image'),authServices.uploadProfilePic);
-router.patch('/addAddressDetails',auth,validation(addAddressSchema),authServices.addAddressDetails);
-router.patch('/updateProfile',auth,validation(updatePatientSchema),authServices.updateProfile);
+router.patch('/addAddressDetails',auth,validation(addAddressSchema),patientService.addAddressDetails);
+router.patch('/updateProfile',auth,validation(updateUserSchema),authServices.updateProfile);
 router.delete('/deleteProfile',auth,authServices.deleteProfile);
+router.patch('/updateAddress',auth,patientService.updateAddress);
+router.delete('/deleteAddress',auth,patientService.removeAddress);
 
 export default router ;
