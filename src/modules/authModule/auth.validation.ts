@@ -68,7 +68,7 @@ export const addAddressSchema = z.object({
 });
 
 export const SearchUserSchema = z.object({
-  searchMethode: z.enum(['email', 'phone'], { error: "Methode must be email or phone" }),
+  searchMethod: z.enum(['email', 'phone'], { error: "Methode must be email or phone" }),
   content: z.string({ error: "content must be a string" })
 })
 export const verifyPhoneSchema = z.object({

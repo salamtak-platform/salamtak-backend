@@ -116,4 +116,6 @@ export interface IProvider extends Document {
     clinicGeneralInfo?: IClinicGeneralInfo;
     physicalClinicDetails?: IPhysicalClinicDetails;
     onlineClinicDetails?: IOnlineClinicDetails;
+
+   
 }

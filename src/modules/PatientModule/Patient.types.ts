@@ -40,7 +40,8 @@ export interface IPatient {
     newPhoneOtp?:{
         otp: string,
         expiredAt: Date
-    }
+    },
+     isInChat: boolean ;
 }
 
 export interface IAddress {

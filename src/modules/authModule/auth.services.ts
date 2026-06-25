@@ -434,12 +434,12 @@ export class AuthServices {
     
     searchLogin = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
         try {
-            let { searchMethode, content }: searchUserDto = req.body;
+            let { searchMethod, content }: searchUserDto = req.body;
             let userExist;
 
-            if (searchMethode == 'email') {
+            if (searchMethod == 'email') {
                 userExist = await this.userModel.findByEmail({ email: content });
-            } else if (searchMethode == 'phone') {
+            } else if (searchMethod == 'phone') {
                 userExist = await this.userModel.findByPhone({ phone: content });
             }
 
@@ -453,7 +453,7 @@ export class AuthServices {
             if (userExist.deletedAt) {
                 throw new InvalidTokenException()
               }
-            if ((searchMethode == 'email' && !userExist.isEmailVerified) || (searchMethode == 'phone' && !userExist.isPhoneVerified)) {
+            if ((searchMethod == 'email' && !userExist.isEmailVerified) || (searchMethod == 'phone' && !userExist.isPhoneVerified)) {
                 return successHandler({
                     res,
                     message: `User found but content entered is unverfied`
@@ -462,7 +462,7 @@ export class AuthServices {
 
             let result = `User found`;
 
-            if (searchMethode == 'phone') {
+            if (searchMethod == 'phone') {
                 const otp = createOtp();
                 const hashedOtp = await hash(otp);
 

@@ -150,8 +150,10 @@ const providerSchema = new Schema<IProvider>({
     
     clinicGeneralInfo: clinicGeneralInfoSchema,
     physicalClinicDetails: physicalClinicDetailsSchema,
-    onlineClinicDetails: onlineClinicDetailsSchema
+    onlineClinicDetails: onlineClinicDetailsSchema,
 
+
+    
 }, {
     timestamps: true
 });

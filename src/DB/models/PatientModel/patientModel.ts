@@ -89,7 +89,8 @@ let patientSchema = new Schema<IPatient>({
     type: String,
     enum: ['patient'], 
     default: 'patient'
-}
+},
+isInChat: { type: Boolean, default: false }
 
 }, {
     timestamps: true

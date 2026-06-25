@@ -14,8 +14,7 @@ const app =express() ;
     //error handling 
     app.use((err:IError,req:Request ,res:Response,next:NextFunction)=>{
         res.status(err.statusCode||500).json({
-            msg:err.message ,
-            stack:err.stack,
+            message:err.message ,
             status:err.statusCode||500
         })
     })
