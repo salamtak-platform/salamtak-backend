@@ -39,7 +39,7 @@ export const decodeToken = async ({
 
  
   let userModel: any;
-  console.log(payload.role)
+  
   if (payload.role === 'patient') {
     userModel = new patientRepo();
   }  else if (payload.role === 'doctor') {
