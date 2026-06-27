@@ -1,28 +1,14 @@
-import  express ,{Request ,Response,NextFunction} from "express";
-import routers from "./modules/routers";
-import { IError } from "./utilis/errors/types";
+import app from "./app";
 import { DBConnection } from "./DB/config/connectDB";
 
+const bootStrap = async () => {
+    const port = Number(process.env.PORT) || 3000;
 
-const app =express() ;
+    await DBConnection();
 
- const bootStrap=async ()=>{
-    const port =process.env.PORT || 3000
-    app.use(express.json()) ;
-    app.use('/api/v1',routers) ;
-    await DBConnection()
-    //error handling 
-    app.use((err:IError,req:Request ,res:Response,next:NextFunction)=>{
-        res.status(err.statusCode||500).json({
-            message:err.message ,
-            status:err.statusCode||500
-        })
-    })
+    return app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
+};
 
-
-
-    app.listen(port,()=>{console.log(`surver running on port ${port||3000}`);
-    })
-}
-
-export default bootStrap
+export default bootStrap;

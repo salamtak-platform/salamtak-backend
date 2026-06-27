@@ -2,10 +2,16 @@
   "name": "social-app",
   "version": "1.0.0",
   "main": "./dist/index.js",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
-    "build": "tsc -watch",
+    "build": "tsc",
+    "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
     "start": "node dist/index.js",
-    "start:conc": "concurrently \"tsc -watch\" \"npm run start\""
+    "start:conc": "concurrently \"tsc -watch\" \"npm run start\"",
+    "test": "npm run build && node --test test/*.test.cjs",
+    "audit": "npm audit --audit-level=high"
   },
   "keywords": [],
   "author": "",
