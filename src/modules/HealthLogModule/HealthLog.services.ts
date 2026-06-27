@@ -102,7 +102,6 @@ export class HealthLogServices {
         if (targetFilters.length > 0) {
             queryOptions.arrayFilters = targetFilters;
         }
-        console.log(updateCommand, queryOptions);
         const updatedLog = await this.healthLogModel.findByIdAndUpdate(
             log._id as unknown as string,
             updateCommand,

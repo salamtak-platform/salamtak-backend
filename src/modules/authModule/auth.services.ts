@@ -31,7 +31,6 @@ export class AuthServices {
             const existingUser = await this.userModel.findOne({
                 filter: duplicateFilter
             });
-            console.log(existingUser)
             if (existingUser) {
                 if (existingUser.isRegistrationComplete) {
                     throw new ApplicationError('This account is already registered. Please log in.', 400);
@@ -69,6 +68,8 @@ export class AuthServices {
             if (isEmail) {
                 const html = template({ otp, name: "user", subject: "Verify Registration" });
                SendEmail({ to: identity, subject: "Verify your registration", html });
+               console.log('email otp is ',otp);
+               
                
             } else {
                 await sendSms({
@@ -246,6 +247,8 @@ export class AuthServices {
                     subject: `Verify your email`,
                     html
                 });
+                console.log("resend email otp ",otp);
+                
             } else {
                 await sendSms({
                     to: user.phone as string,
@@ -360,6 +363,8 @@ export class AuthServices {
             subject: `Forget password`,
             html
         })
+        console.log('reset password email otp is ' , otp);
+        
 
         await user.updateOne({
             passwordOtp: {
